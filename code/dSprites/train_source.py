@@ -52,92 +52,48 @@ data_transforms = {
     'test': tran.rr_eval(resize_size=224),
 }
 # set dataset
-batch_size = {"train": 36, "val": 36, "test": 4}
-rc="realistic.txt"
-rl="real.txt"
-t="toy.txt"
+batch_size = {"train": args.batch, "val": args.batch, "test": 36}
+c="color.txt"
+n="noisy.txt"
+s="scream.txt"
 
-rc_t="realistic_test.txt"
-rl_t="real_test.txt"
-t_t="toy_test.txt"
+c_t="color_test.txt"
+n_t="noisy_test.txt"
+s_t="scream_test.txt"
+
+if args.src =='c':
+    source_path = c
+    npz_path_source = '/home/rpu2/scratch/code/dsprites-dataset/da'
+elif args.src =='n':
+    source_path = n
+    npz_path_source = '/home/rpu2/scratch/code/dsprites-dataset/da'
+elif args.src =='s':
+    source_path = s
+    npz_path_source = '/home/rpu2/scratch/code/dsprites-dataset/da'
+
+if args.tgt =='c':
+    target_path = c
+elif args.tgt =='n':
+    target_path = n
+elif args.tgt =='s':
+    target_path = s
 
 
-
-if args.src =='rl':
-    source_path = rl
-    npz_path_source = '/home/rpu2/scratch/code/MPI3D_data/real.npz'
-elif args.src =='rc':
-    source_path = rc
-    npz_path_source = '/home/rpu2/scratch/code/MPI3D_data/mpi3d_realistic.npz'
-elif args.src =='t':
-    source_path = t
-    npz_path_source = '/home/rpu2/scratch/code/MPI3D_data/mpi3d_toy.npz'
-
-if args.tgt =='rl':
-    target_path = rl
-    npz_path_target = '/home/rpu2/scratch/code/MPI3D_data/real.npz'
-elif args.tgt =='rc':
-    target_path = rc
-    npz_path_target = '/home/rpu2/scratch/code/MPI3D_data/mpi3d_realistic.npz'
-elif args.tgt =='t':
-    target_path = t
-    npz_path_target = '/home/rpu2/scratch/code/MPI3D_data/mpi3d_toy.npz'
-
-if args.tgt =='rl':
-    target_path_t = rl_t
-    npz_path_test = '/home/rpu2/scratch/code/MPI3D_data/real.npz'
-elif args.tgt =='rc':
-    target_path_t = rc_t
-    npz_path_test = '/home/rpu2/scratch/code/MPI3D_data/mpi3d_realistic.npz'
-elif args.tgt =='t':
-    target_path_t = t_t
-    npz_path_test = '/home/rpu2/scratch/code/MPI3D_data/mpi3d_toy.npz'
 
 
 store_name = f'source_{args.src}_target_{args.tgt}'
 
-dsets = {"train": ImageList(open(source_path).readlines(), npz_path=npz_path_source, transform=data_transforms["train"]),
-         "val": ImageList(open(target_path).readlines(), npz_path=npz_path_target, transform=data_transforms["val"]),
-         "test": ImageList(open(target_path_t).readlines(), npz_path=npz_path_test, transform=data_transforms["test"])}
+dsets = {"train": ImageList(open(source_path).readlines(), npz_path=npz_path_source, transform=data_transforms["train"])}
 
 dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], batch_size=batch_size[x],
                                                shuffle=True, num_workers=8)
-                for x in ['train', 'val']}
-dset_loaders["test"] = torch.utils.data.DataLoader(dsets["test"], batch_size=batch_size["test"],
-                                                   shuffle=False, num_workers=16)
+                for x in ['train']}
 
-dset_sizes = {x: len(dsets[x]) for x in ['train', 'val','test']}
+
+dset_sizes = {x: len(dsets[x]) for x in ['train']}
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-def Regression_test(loader, model):
-    MSE = [0, 0, 0]
-    MAE = [0, 0, 0]
-    number = 0
-    with torch.no_grad():
-        for idx, (imgs, labels) in enumerate(loader['test']):
-            imgs = imgs.to(device)
-            labels = labels.to(device)
-            labels1 = labels[:, 0]
-            labels2 = labels[:, 1]
-            labels1 = labels1.unsqueeze(1)
-            labels2 = labels2.unsqueeze(1)
-            labels = torch.cat((labels1, labels2), dim=1)
-            labels = labels.float() / 39
-            pred = model(imgs)
-            MSE[0] += torch.nn.MSELoss(reduction='sum')(pred[:, 0], labels[:, 0])
-            MAE[0] += torch.nn.L1Loss(reduction='sum')(pred[:, 0], labels[:, 0])
-            MSE[1] += torch.nn.MSELoss(reduction='sum')(pred[:, 1], labels[:, 1])
-            MAE[1] += torch.nn.L1Loss(reduction='sum')(pred[:, 1], labels[:, 1])
-            MSE[2] += torch.nn.MSELoss(reduction='sum')(pred, labels)
-            MAE[2] += torch.nn.L1Loss(reduction='sum')(pred, labels)
-            number += imgs.size(0)
-    for j in range(3):
-        MSE[j] = MSE[j] / number
-        MAE[j] = MAE[j] / number
-    print("\tMSE : {0},{1}\n".format(MSE[0], MSE[1]))
-    print("\tMAE : {0},{1}\n".format(MAE[0], MAE[1]))
-    print("\tMSEall : {0}\n".format(MSE[2]))
-    print("\tMAEall : {0}\n".format(MAE[2]))
+
 
 def RSD(Feature_s, Feature_t):
     u_s, s_s, v_s = torch.svd(Feature_s.t())
