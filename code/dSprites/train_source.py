@@ -33,6 +33,8 @@ parser.add_argument('--tradeoff', type=float, default=0.001,
                         help='tradeoff of RSD')
 parser.add_argument('--tradeoff2', type=float, default=0.01,
                         help='tradeoff of BMP')
+parser.add_argument('--batch', type=int, default=36,
+                        help='batch size')
 args = parser.parse_args()
 
 torch.manual_seed(args.seed)
