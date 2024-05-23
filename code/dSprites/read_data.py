@@ -136,7 +136,7 @@ def accimage_loader(path):
         return pil_loader(path)
 
 
-def default_loader(path, img_path=''):
+def default_loader(path, img_path):
     # from torchvision import get_image_backend
     # if get_image_backend() == 'accimage':
     #    return accimage_loader(path)
