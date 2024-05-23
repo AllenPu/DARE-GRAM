@@ -134,24 +134,24 @@ class Model_Regression(nn.Module):
 
 
 
-models = ['source_rl_target_t.pth', 'source_t_target_rc.pth', 'source_rc_target_rl.pth', 'source_rc_target_t.pth', 'source_rl_target_rc.pth', 'source_t_target_rl.pth']
-sources = ['rl', 't', 'rc', 'rc', 'rl', 't']
-targets = ['t', 'rc', 'rl', 't', 'rc', 'rl']
+models = ['source_c_target_n.pth', 'source_c_target_s.pth', 'source_n_target_c.pth', 'source_n_target_s.pth', 'source_s_target_c.pth', 'source_s_target_n.pth']
+sources = ['c', 'c', 'n', 'n', 's', 's']
+targets = ['n', 's', 'c', 's', 'c', 'n']
 
+c_t="color_test.txt"
+n_t="noisy_test.txt"
+s_t="scream_test.txt"
 
-
+path_test = '/home/rpu2/scratch/code/dsprites-dataset/da'
 
 for i, (m, sour, tar) in enumerate(zip(models, sources, targets)):
-    if tar =='rl':
-        target_path_t = rl_t
-        npz_path_test = '/home/rpu2/scratch/code/MPI3D_data/real.npz'
-    elif tar =='rc':
-        target_path_t = rc_t
-        npz_path_test = '/home/rpu2/scratch/code/MPI3D_data/mpi3d_realistic.npz'
-    elif tar =='t':
-        target_path_t = t_t
-        npz_path_test = '/home/rpu2/scratch/code/MPI3D_data/mpi3d_toy.npz'  
-    dsets = {"test": ImageList(open(target_path_t).readlines(), npz_path=npz_path_test, transform=data_transforms["test"])}
+    if tar == 'n':
+        target_path_t = "color_test.txt"
+    if tar == 'c':
+        target_path_t = "noisy_test.txt"
+    if tar == 's':
+        target_path_t = "scream_test.txt"
+    dsets = {"test": ImageList(open(target_path_t).readlines(), img_path=path_test, transform=data_transforms["test"])}
     dset_loaders = {}
     dset_loaders["test"] = torch.utils.data.DataLoader(dsets["test"], batch_size=batch_size["test"],
                                                    shuffle=False, num_workers=16)
