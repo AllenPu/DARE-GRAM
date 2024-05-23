@@ -70,11 +70,11 @@ elif args.src =='s':
 img_path_source = '/home/rpu2/scratch/code/dsprites-dataset/da'
 
 if args.tgt =='c':
-    target_path = c
+    target_path = c_t
 elif args.tgt =='n':
-    target_path = n
+    target_path = n_t
 elif args.tgt =='s':
-    target_path = s
+    target_path = s_t
 img_path_target = '/home/rpu2/scratch/code/dsprites-dataset/da'
 
 
