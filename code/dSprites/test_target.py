@@ -102,17 +102,21 @@ def Regression_test(loader, model, src, tgt):
     print("\tMSEall : {0}\n".format(MSE[2]))
     print("\tMAEall : {0}\n".format(MAE[2]))
     x = [i for i in range(len(upper))]
-    plt.plot(x, gt_upper, label='labels')
-    plt.plot(x, upper, label='upper_preds')
+    l1_upper = upper  - gt_upper
+    l1_bottom = bottom - gt_bottom
+    #plt.plot(x, gt_upper, label='labels')
+    #plt.plot(x, upper, label='upper_preds')
+    plt.hist(l1_upper, label='upper_differrence')
     plt.legend()
     #plt.draw()
-    plt.savefig('./imgs/pic-{}_src-{}-tgt-{}.png'.format('upper', src, tgt))
+    plt.savefig('./imgs/pic-hist-{}_src-{}-tgt-{}.png'.format('upper', src, tgt))
     plt.close()
-    plt.plot(x, gt_bottom, label='labels')
-    plt.plot(x, bottom, label='bottom_preds')
+    plt.hist(l1_bottom, label='bottom_difference')
+    #plt.plot(x, gt_bottom, label='labels')
+    #plt.plot(x, bottom, label='bottom_preds')
     plt.legend()
     #lt.draw()
-    plt.savefig('./imgs/pic-{}_src-{}-tgt-{}.png'.format('bottom', src, tgt))
+    plt.savefig('./imgs/pic-hist-{}_src-{}-tgt-{}.png'.format('bottom', src, tgt))
     plt.close()
 
 
