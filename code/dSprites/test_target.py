@@ -109,14 +109,14 @@ def Regression_test(loader, model, src, tgt):
     plt.hist(l1_upper, label='upper_differrence')
     plt.legend()
     #plt.draw()
-    plt.savefig('./imgs/pic-hist-{}_src-{}-tgt-{}.png'.format('upper', src, tgt))
+    plt.savefig('./imgs/s_s/pic-hist-{}_src-{}-tgt-{}.png'.format('upper', src, tgt))
     plt.close()
     plt.hist(l1_bottom, label='bottom_difference')
     #plt.plot(x, gt_bottom, label='labels')
     #plt.plot(x, bottom, label='bottom_preds')
     plt.legend()
     #lt.draw()
-    plt.savefig('./imgs/pic-hist-{}_src-{}-tgt-{}.png'.format('bottom', src, tgt))
+    plt.savefig('./s_s/imgs/pic-hist-{}_src-{}-tgt-{}.png'.format('bottom', src, tgt))
     plt.close()
 
 
@@ -148,7 +148,9 @@ s_t="scream_test.txt"
 
 path_test = '/home/rpu2/scratch/code/dsprites-dataset/da'
 
-for i, (m, sour, tar) in enumerate(zip(models, sources, targets)):
+
+
+for i, (m, sour, tar) in enumerate(zip(models, sources, sources)):
     if tar == 'n':
         target_path_t = "color_test.txt"
     if tar == 'c':
@@ -166,6 +168,7 @@ for i, (m, sour, tar) in enumerate(zip(models, sources, targets)):
     #
     Model_R.eval()
     Regression_test(dset_loaders, Model_R.predict_layer, src=sour, tgt=tar)
+
 
 
 
