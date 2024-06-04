@@ -71,6 +71,7 @@ def Regression_test(loader, model, src, tgt):
     MAE = [0, 0, 0]
     number = 0
     upper , bottom, gt_upper, gt_bottom = [], [], [], []
+    norm_list = []
     with torch.no_grad():
         for idx, (imgs, labels) in enumerate(loader['test']):
             imgs = imgs.to(device)
@@ -81,7 +82,9 @@ def Regression_test(loader, model, src, tgt):
             labels2 = labels2.unsqueeze(1)
             labels = torch.cat((labels1, labels2), dim=1)
             labels = labels.float() / 39
-            pred = model(imgs)
+            pred, feature = model(imgs)
+            norms = torch.norm(feature, p = 'fro', dim=-1)
+            norm_list.extend(norms.cpu().tolist())
             MSE[0] += torch.nn.MSELoss(reduction='sum')(pred[:, 0], labels[:, 0])
             MAE[0] += torch.nn.L1Loss(reduction='sum')(pred[:, 0], labels[:, 0])
             MSE[1] += torch.nn.MSELoss(reduction='sum')(pred[:, 1], labels[:, 1])
@@ -97,11 +100,17 @@ def Regression_test(loader, model, src, tgt):
         MSE[j] = MSE[j] / number
         MAE[j] = MAE[j] / number
     print(f' source is {src} target is {tgt}')
+    #
+    m = sum(norm_list)/len(norm_list)
+    print("\tMeanOfFrob : {0}\n".format(m))
+    '''
     print("\tMSE : {0},{1}\n".format(MSE[0], MSE[1]))
     print("\tMAE : {0},{1}\n".format(MAE[0], MAE[1]))
     print("\tMSEall : {0}\n".format(MSE[2]))
     print("\tMAEall : {0}\n".format(MAE[2]))
-    x = [i for i in range(len(upper))]
+    #
+    #
+    #x = [i for i in range(len(upper))]
     l1_upper = list(map(lambda x: x[0]-x[1], zip(upper, gt_upper)))
     l1_bottom = list(map(lambda x: x[0]-x[1], zip(bottom, gt_bottom)))
     #plt.plot(x, gt_upper, label='labels')
@@ -118,6 +127,7 @@ def Regression_test(loader, model, src, tgt):
     #lt.draw()
     plt.savefig('./imgs/s_s/pic-hist-{}_src-{}-tgt-{}.png'.format('bottom', src, tgt))
     plt.close()
+    '''
 
 
 class Model_Regression(nn.Module):
@@ -133,7 +143,6 @@ class Model_Regression(nn.Module):
         feature = self.model_fc(x)
         outC= self.classifier_layer(feature)
         return(outC,feature)
-
 
 
 
@@ -167,7 +176,30 @@ for i, (m, sour, tar) in enumerate(zip(models, sources, sources)):
     Model_R = torch.load(m)
     #
     Model_R.eval()
-    Regression_test(dset_loaders, Model_R.predict_layer, src=sour, tgt=tar)
+    #Regression_test(dset_loaders, Model_R.predict_layer, src=sour, tgt=tar)
+    Regression_test(dset_loaders, Model_R, src=sour, tgt=tar)
+
+
+
+for i, (m, sour, tar) in enumerate(zip(models, sources, targets)):
+    if tar == 'n':
+        target_path_t = "color_test.txt"
+    if tar == 'c':
+        target_path_t = "noisy_test.txt"
+    if tar == 's':
+        target_path_t = "scream_test.txt"
+    dsets = {"test": ImageList(open(target_path_t).readlines(), img_path=path_test, transform=data_transforms["test"])}
+    dset_loaders = {}
+    dset_loaders["test"] = torch.utils.data.DataLoader(dsets["test"], batch_size=batch_size["test"],
+                                                   shuffle=False, num_workers=16)
+
+    dset_sizes = {x: len(dsets[x]) for x in ['test']}
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    Model_R = torch.load(m)
+    #
+    Model_R.eval()
+    #Regression_test(dset_loaders, Model_R.predict_layer, src=sour, tgt=tar)
+    Regression_test(dset_loaders, Model_R, src=sour, tgt=tar)
 
 
 
