@@ -116,7 +116,7 @@ def Regression_test(loader, model, src, tgt):
     #plt.plot(x, bottom, label='bottom_preds')
     plt.legend()
     #lt.draw()
-    plt.savefig('./s_s/imgs/pic-hist-{}_src-{}-tgt-{}.png'.format('bottom', src, tgt))
+    plt.savefig('./imgs/s_s/pic-hist-{}_src-{}-tgt-{}.png'.format('bottom', src, tgt))
     plt.close()
 
 
