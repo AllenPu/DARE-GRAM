@@ -85,6 +85,7 @@ def Regression_test(loader, model, src, tgt):
             pred, feature = model(imgs)
             norms = torch.norm(feature, p = 'fro', dim=-1)
             norm_list.extend(norms.cpu().tolist())
+            #
             MSE[0] += torch.nn.MSELoss(reduction='sum')(pred[:, 0], labels[:, 0])
             MAE[0] += torch.nn.L1Loss(reduction='sum')(pred[:, 0], labels[:, 0])
             MSE[1] += torch.nn.MSELoss(reduction='sum')(pred[:, 1], labels[:, 1])
